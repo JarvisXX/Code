@@ -14,8 +14,8 @@ int main()
     cout << "find 3 is " << (tree.find(3)?"true":"false") <<endl;
     tree.remove(3);
     cout << "after delete 3, find 3 is " << (tree.find(3)?"true":"false") <<endl;
-    cout << "find 21 is " << (tree.find(100)?"true":"false") <<endl;
+    cout << "find 100 is " << (tree.find(100)?"true":"false") <<endl;
     tree.remove(100);
-    cout << "after delete 21, find 21 is " << (tree.find(100)?"true":"false") <<endl;
+    cout << "after delete 100, find 100 is " << (tree.find(100)?"true":"false") <<endl;
     return 0;
 }
