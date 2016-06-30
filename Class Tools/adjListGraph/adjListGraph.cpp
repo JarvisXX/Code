@@ -2,6 +2,7 @@
 #include "adjListGraph.h"
 #include "linkQueue.cpp"
 #include "priorityQueue.cpp"
+#include "DisjointSet.cpp"
 using namespace std;
 
 template <class TypeOfVer, class TypeOfEdge>
@@ -109,7 +110,7 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::bfs() const
             currentNode = q.deQueue();
             if (visited[currentNode]==true)
                 continue;
-            cout << verList[currentNode].ver <<'\t';
+            cout << verList[currentNode].ver <<' ';
             visited[currentNode] = true;
             p = verList[currentNode].head;
             while (p!=NULL)
@@ -131,6 +132,11 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::EulerCircuit(TypeOfVer start)
     edgeNode *r;
     verNode *tmp;
 
+    if (Edges==0)
+    {
+        cout << "Euler Curcuit Nonexistent!" <<endl;
+        return;
+    }
     for (int i=0; i<Vers; ++i)
     {
         numOfDegree = 0;
@@ -183,7 +189,7 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::EulerCircuit(TypeOfVer start)
     cout << "Euler Curcuit:" <<endl;
     while (beg!=NULL)
     {
-        cout << verList[beg->NodeNum].ver <<'\t';
+        cout << verList[beg->NodeNum].ver <<' ';
         p = beg;
         beg = beg->next;
         delete p;
@@ -196,7 +202,8 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::topSort() const
 {
     linkQueue<int> q;
     edgeNode *p;
-    int current, *inDegree=new int [Vers];
+    int current;
+    int *inDegree=new int [Vers];
     for (int i=0; i<Vers; ++i)
         inDegree[i] = 0;
     for (int i=0; i<Vers; ++i)
@@ -209,7 +216,7 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::topSort() const
     while (!q.isEmpty())
     {
         current = q.deQueue();
-        cout << verList[current].ver <<'\t';
+        cout << verList[current].ver <<' ';
         for (p=verList[current].head; p!=NULL; p=p->next)
             if (--inDegree[p->end]==0)
                 q.enQueue(p->end);
@@ -234,7 +241,7 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::kruskal() const
                 e.beg = i;
                 e.end = p->end;
                 e.w = p->weight;
-                pq.edQueue(e);
+                pq.enQueue(e);
             }
     }
 
@@ -247,7 +254,7 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::kruskal() const
         {
             ++edgesAccepted;
             ds.Union(u, v);
-            cout <<'('<< verList[e.ebg].ver <<','<< verList[e.end].ver <<")\t";
+            cout <<'('<< verList[e.beg].ver <<','<< verList[e.end].ver <<") ";
         }
     }
 }
@@ -284,7 +291,7 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::prim(TypeOfEdge noEdge) const
                 min = lowCost[j];
                 start = j;
             }
-        cout <<'('<< verList[startNode[start]].ver <<','<< verList[start].ver <<")\t";
+        cout <<'('<< verList[startNode[start]].ver <<','<< verList[start].ver <<") ";
         lowCost[start] = noEdge;
     }
     delete [] flag;
@@ -337,7 +344,58 @@ void adjListGraph<TypeOfVer, TypeOfEdge>::unweightedShortDistance(TypeOfVer star
 }
 
 template <class TypeOfVer, class TypeOfEdge>
-adjListGraph<TypeOfVer, TypeOfEdge>::verNode* adjListGraph<TypeOfVer, TypeOfEdge>::clone() const
+void adjListGraph<TypeOfVer, TypeOfEdge>::dijkstra(TypeOfVer start, TypeOfEdge noEdge) const
+{
+    TypeOfEdge *distance=new TypeOfEdge[Vers];
+    int *prev=new int [Vers];
+    bool *known=new bool [Vers];
+
+    int u, sNo, i, j;
+    edgeNode *p;
+    TypeOfEdge min;
+
+    for (i=0; i<Vers; ++i)
+    {
+        known[i] = false;
+        distance[i] = noEdge;
+    }
+    for (sNo=0; sNo<Vers; ++sNo)
+        if (verList[sNo].ver==start)
+            break;
+    if (sNo==Vers)
+    {
+        cout << "Start Vertex Nonexistent!" <<endl;
+        return;
+    }
+    distance[sNo] = 0;
+    prev[sNo] = sNo;
+    for (i=1; i<Vers; ++i)
+    {
+        min = noEdge;
+        for (j=0; j<Vers; ++j)
+            if (!known[j] && distance[j]<min)
+            {
+                min = distance[j];
+                u = j;
+            }
+        known[u] = true;
+        for (p=verList[u].head; p!=NULL; p=p->next)
+            if (!known[p->end] && distance[p->end]>min+p->weight)
+            {
+                distance[p->end] = min+p->weight;
+                prev[p->end] = u;
+            }
+    }
+    for (i=0; i<Vers; ++i)
+    {
+        cout << "The path from " << start << " to " << verList[i].ver << " is: " <<endl;
+        printPath(sNo, i, prev);
+        cout << "\tThe length is:" << distance[i] <<endl;
+    }
+}
+
+template <class TypeOfVer, class TypeOfEdge>
+typename adjListGraph<TypeOfVer, TypeOfEdge>::verNode* adjListGraph<TypeOfVer, TypeOfEdge>::clone() const
 {
     verNode *tmp=new verNode[Vers];
     edgeNode *p;
@@ -356,7 +414,7 @@ adjListGraph<TypeOfVer, TypeOfEdge>::verNode* adjListGraph<TypeOfVer, TypeOfEdge
 }
 
 template <class TypeOfVer, class TypeOfEdge>
-adjListGraph<TypeOfVer, TypeOfEdge>::EulerNode* adjListGraph<TypeOfVer, TypeOfEdge>::EulerCircuit(int start, EulerNode* &end)
+typename adjListGraph<TypeOfVer, TypeOfEdge>::EulerNode* adjListGraph<TypeOfVer, TypeOfEdge>::EulerCircuit(int start, EulerNode* &end)
 {
     EulerNode *beg;
     int nextNode;
@@ -377,7 +435,7 @@ template <class TypeOfVer, class TypeOfEdge>
 void adjListGraph<TypeOfVer, TypeOfEdge>::dfs(int start, bool visited[]) const
 {
     edgeNode *p=verList[start].head;
-    cout << verList[start].ver <<'\t';
+    cout << verList[start].ver <<' ';
     visited[start] = true;
     while (p!=NULL)
     {

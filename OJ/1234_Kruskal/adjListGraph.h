@@ -27,16 +27,6 @@ private:
             head = h;
         }
     };
-    struct EulerNode
-    {
-        int NodeNum;
-        EulerNode *next;
-        EulerNode(int ver)
-        {
-            NodeNum = ver;
-            next = NULL;
-        }
-    };
     struct edge
     {
         int beg, end;
@@ -48,23 +38,11 @@ private:
     };
     verNode *verList;
     int Vers, Edges;
-    void dfs(int start, bool visited[]) const;
-    verNode* clone() const;
-    EulerNode* EulerCircuit(int start, EulerNode* &end);
-    void printPath(int start, int end, int prev[]) const;
 public:
     adjListGraph(int vSize, const TypeOfVer d[]);
     ~adjListGraph();
     bool insert(int u, int v, TypeOfEdge w);
-    bool remove(int u, int v);
-    bool exist(int u, int v) const;
-    void dfs() const;
-    void bfs() const;
-    void EulerCircuit(TypeOfVer start);
-    void topSort() const;
-    void kruskal() const;
-    void prim(TypeOfEdge noEdge) const;
-    void unweightedShortDistance(TypeOfVer start, TypeOfEdge noEdge) const;
-    void dijkstra(TypeOfVer start, TypeOfEdge noEdge) const;
+    int kruskal() const;
+    int prim(TypeOfEdge noEdge) const;
 };
 #endif
